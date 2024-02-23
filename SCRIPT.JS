@@ -14,7 +14,7 @@ let itens = document.querySelectorAll(".itemList");
 for (let item of itens) {
   // Seleciona o checkbox e o botão do item
   let checkbox = item.querySelector(".checkbox");
-  let button = item.querySelector(".remover-item-lista");
+
   // Adiciona um evento de change no checkbox para mudar o estilo do item
   checkbox.addEventListener("change", function() {
     // Verifica se o checkbox está marcado ou não
@@ -29,9 +29,11 @@ for (let item of itens) {
       item.className = "itemList";
     }
   });
+  let button = item.querySelector(".remover-item-lista");
   // Adiciona um evento de clique no botão para remover o item
   button.addEventListener("click", function() {
     // Remove o item da UL
+    window.confirm("Tem certeza que deseja excluir?")
     ul.removeChild(item);
   });
 }
@@ -86,6 +88,7 @@ function adicionarItem() {
     // Adiciona um evento de clique no button para remover o li
     button.addEventListener("click", function() {
       // Remove o li da UL
+      window.confirm("Tem certeza que deseja excluir?")
       ul.removeChild(li);
     });
   }
