@@ -1,98 +1,84 @@
-// [M1S06] Ex. 2 - Estilizando a lista (to-do list project)
-// [M1S06] Ex. 3 - Estilizando demais elementos (to-do list project)
-// [M1S06] Ex. 4 - Adicionando itens na lista (to-do list project)
+let input = document.querySelector("#nova-tarefa");
+let button = document.querySelector("#add-tarefa");
+let ul = document.querySelector("#afazeres");
+let itens = document.querySelectorAll(".item-lista");
+let tarefasFeitas = document.querySelectorAll(".check-tarefa[checked=true]");
+var numeroFeitas = tarefasFeitas.length;
 
-// Seleciona o input, o botão e a UL do HTML
-let input = document.querySelector("#novaTarefa");
-let button = document.querySelector("#addTarefa");
-let ul = document.querySelector(".lista");
 
-// Seleciona todos os itens da lista
-let itens = document.querySelectorAll(".itemList");
+let contador = document.querySelector("#contador");
 
-// Percorre cada item da lista
-for (let item of itens) {
-  // Seleciona o checkbox e o botão do item
-  let checkbox = item.querySelector(".checkbox");
+// Adicione um evento de clique ao botão de adicionar tarefa
+button.addEventListener("click", adicionarTarefa);
 
-  // Adiciona um evento de change no checkbox para mudar o estilo do item
-  checkbox.addEventListener("change", function() {
-    // Verifica se o checkbox está marcado ou não
-    var checked = this.checked;
+// Adicione um evento de pressionar tecla ao input de nova tarefa
+input.addEventListener("keypress", function(event) {
+  // Verifique se a tecla pressionada é o enter
+  if (event.key === "Enter" || event.keyCode === 13) {
+    // Chame a função de adicionar tarefa
+    adicionarTarefa(event);
+  }
+});
 
-    // Se estiver marcado, troca a classe itemList por itemListConcluído
-    if (checked) {
-      item.className = "itemListConcluído";
-    }
-    // Se não estiver marcado, troca a classe itemListConcluído por itemList
-    else {
-      item.className = "itemList";
-    }
-  });
-  let button = item.querySelector(".remover-item-lista");
-  // Adiciona um evento de clique no botão para remover o item
+// Crie uma função para adicionar uma nova tarefa
+function adicionarTarefa(event) {
+  // Previna o comportamento padrão do evento
+  event.preventDefault();
+
+  const valor = input.value;
+
+  const li = document.createElement("li");
+  const checkbox = document.createElement("input");
+  const label = document.createElement("label");
+  const button = document.createElement("button");
+  const span = document.createElement("span");
+  
+  li.classList.add("item-lista");
+  checkbox.type = "checkbox";
+  checkbox.classList.add("check-tarefa");
+  label.textContent = valor;
+
+  button.setAttribute("class", "remover-item-lista");
+  span.setAttribute("class", "material-symbols-outlined");
+  span.textContent = "delete_forever";
+
+  const id = "item" + (ul.children.length + 1);
+  checkbox.id = id;
+  label.setAttribute("for", id);
+  label.classList.add("to-do-texto");
+    
+  button.appendChild(span);
+  li.appendChild(checkbox);
+  li.appendChild(label);
+  li.appendChild(button);
+  ul.appendChild(li);
+
+  input.value = "";
+
+  atualizarContador()
+
   button.addEventListener("click", function() {
-    // Remove o item da UL
-    window.confirm("Tem certeza que deseja excluir?")
-    ul.removeChild(item);
-  });
+    window.confirm("Tem certeza que deseja excluir?") && ul.removeChild(li);
+    atualizarContador()
+  })
 }
 
-// Cria uma função para adicionar um item na UL
-function adicionarItem() {
-  // Pega o valor do input
-  const valor = input.value;
-  // Verifica se o valor não está vazio
-  if (valor) {
-    // Cria um novo elemento li com a classe itemList
-    const li = document.createElement("li");
-    li.classList.add("itemList");
-    // Cria um novo elemento input do tipo checkbox com a classe checkbox
-    const checkbox = document.createElement("input");
-    checkbox.type = "checkbox";
-    checkbox.classList.add("checkbox");
-    // Cria um novo elemento label com o valor do input
-    const label = document.createElement("label");
-    label.textContent = valor;
-    // Cria um novo elemento button com a mesma classe e texto dos existentes
-    const button = document.createElement("button");
-    button.classList.add("remover-item-lista");
-    button.textContent = "❌";
-    // Define um id único para o li
-    const id = "item" + (ul.children.length + 1);
-    li.id = id;
-    // Define o atributo for do label como o id do li
-    label.setAttribute("for", id);
-    // Insere o checkbox, o label e o button no li
-    li.appendChild(checkbox);
-    li.appendChild(label);
-    li.appendChild(button);
-    // Insere o li na UL
-    ul.appendChild(li);
-    // Limpa o valor do input
-    input.value = "";
-    // Adiciona um evento de change no checkbox para mudar o estilo do li
-    checkbox.addEventListener("change", function() {
-      // Verifica se o checkbox está marcado ou não
-      var checked = this.checked;
-
-      // Se estiver marcado, troca a classe itemList por itemListConcluído
-      if (checked) {
-        li.className = "itemListConcluído";
-      }
-      // Se não estiver marcado, troca a classe itemListConcluído por itemList
-      else {
-        li.className = "itemList";
-      }
-    });
-    // Adiciona um evento de clique no button para remover o li
+for (let item of itens) {
+    let button = item.querySelector(".remover-item-lista");
     button.addEventListener("click", function() {
-      // Remove o li da UL
-      window.confirm("Tem certeza que deseja excluir?")
-      ul.removeChild(li);
+      window.confirm("Tem certeza que deseja excluir?") && ul.removeChild(item);
+      atualizarContador()
     });
   }
-}
 
-// Adiciona um evento de clique no botão para chamar a função
-button.addEventListener("click", adicionarItem);
+  function atualizarContador() {
+    // Seleciona todos os elementos li dentro do elemento afazeres
+    var itens = document.querySelectorAll("#afazeres li");
+  
+    // Obtém o número de elementos do array itens
+    var numero = itens.length;
+  
+    // Atualiza o texto do elemento contador com o número
+    contador.textContent = `Você possui ${numero} tarefas`;
+
+  }//está faltando atualizar quando da o check para concluir
