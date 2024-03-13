@@ -1,84 +1,204 @@
-let input = document.querySelector("#nova-tarefa");
-let button = document.querySelector("#add-tarefa");
-let ul = document.querySelector("#afazeres");
-let itens = document.querySelectorAll(".item-lista");
-let tarefasFeitas = document.querySelectorAll(".check-tarefa[checked=true]");
-var numeroFeitas = tarefasFeitas.length;
 
+  // Selecionar elementos
+  let input = document.querySelector("#nova-tarefa");
+  let button = document.querySelector("#add-tarefa");
+  let ul = document.querySelector("#afazeres");
+  let contador = document.querySelector("#contador");
 
-let contador = document.querySelector("#contador");
+  // Função para adicionar tarefa
+  function adicionarTarefa(event) {
+    // Prevenir comportamento padrão
+    event.preventDefault();
 
-// Adicione um evento de clique ao botão de adicionar tarefa
-button.addEventListener("click", adicionarTarefa);
+    // Obter valor da nova tarefa
+    const valor = input.value;
 
-// Adicione um evento de pressionar tecla ao input de nova tarefa
-input.addEventListener("keypress", function(event) {
-  // Verifique se a tecla pressionada é o enter
-  if (event.key === "Enter" || event.keyCode === 13) {
-    // Chame a função de adicionar tarefa
-    adicionarTarefa(event);
-  }
-});
+    // Criar elementos
+    const li = document.createElement("li");
+    const checkbox = document.createElement("input");
+    const label = document.createElement("label");
+    const button = document.createElement("button");
+    const span = document.createElement("span");
 
-// Crie uma função para adicionar uma nova tarefa
-function adicionarTarefa(event) {
-  // Previna o comportamento padrão do evento
-  event.preventDefault();
+    // Setar classes e atributos
+    li.classList.add("item-lista");
+    checkbox.type = "checkbox";
+    checkbox.classList.add("check-tarefa");
+    label.textContent = valor;
 
-  const valor = input.value;
+    button.setAttribute("class", "remover-item-lista");
+    span.setAttribute("class", "material-symbols-outlined");
+    span.textContent = "delete_forever";
 
-  const li = document.createElement("li");
-  const checkbox = document.createElement("input");
-  const label = document.createElement("label");
-  const button = document.createElement("button");
-  const span = document.createElement("span");
-  
-  li.classList.add("item-lista");
-  checkbox.type = "checkbox";
-  checkbox.classList.add("check-tarefa");
-  label.textContent = valor;
+    // Gerar ID único
+    const id = "item" + (ul.children.length + 1);
+    checkbox.id = id;
+    label.setAttribute("for", id);
+    label.classList.add("to-do-texto");
 
-  button.setAttribute("class", "remover-item-lista");
-  span.setAttribute("class", "material-symbols-outlined");
-  span.textContent = "delete_forever";
+    // Adicionar elementos ao li
+    button.appendChild(span);
+    li.appendChild(checkbox);
+    li.appendChild(label);
+    li.appendChild(button);
 
-  const id = "item" + (ul.children.length + 1);
-  checkbox.id = id;
-  label.setAttribute("for", id);
-  label.classList.add("to-do-texto");
-    
-  button.appendChild(span);
-  li.appendChild(checkbox);
-  li.appendChild(label);
-  li.appendChild(button);
-  ul.appendChild(li);
+    // Adicionar li à lista
+    ul.appendChild(li);
 
-  input.value = "";
+    // Limpar campo de nova tarefa
+    input.value = "";
 
-  atualizarContador()
+    // Atualizar contador
+    atualizarContador();
 
-  button.addEventListener("click", function() {
-    window.confirm("Tem certeza que deseja excluir?") && ul.removeChild(li);
-    atualizarContador()
-  })
-}
-
-for (let item of itens) {
-    let button = item.querySelector(".remover-item-lista");
+    // Adicionar eventos
     button.addEventListener("click", function() {
-      window.confirm("Tem certeza que deseja excluir?") && ul.removeChild(item);
-      atualizarContador()
+      if (window.confirm("Tem certeza que deseja excluir?")) {
+        removerTarefa(li);
+      }
+    });
+
+    // Salvar tarefas
+    salvarTarefas();
+
+    // Adicionar eventListener no checkbox
+    checkbox.addEventListener("change", function() {
+      salvarTarefas();
     });
   }
 
-  function atualizarContador() {
-    // Seleciona todos os elementos li dentro do elemento afazeres
-    var itens = document.querySelectorAll("#afazeres li");
-  
-    // Obtém o número de elementos do array itens
-    var numero = itens.length;
-  
-    // Atualiza o texto do elemento contador com o número
-    contador.textContent = `Você possui ${numero} tarefas`;
+  // Função para remover tarefa
+  function removerTarefa(li) {
+    // Remover evento de click antes de remover o elemento
+    button.removeEventListener("click", function() {
+      removerTarefa(li);
+    });
 
-  }//está faltando atualizar quando da o check para concluir
+    // Remover elemento da lista
+    ul.removeChild(li);
+
+    salvarTarefas();
+
+    // Atualizar contador
+    atualizarContador();
+  }
+
+  // Função para atualizar contador
+  function atualizarContador() {
+    // Obter o número de elementos li
+    var numero = ul.querySelectorAll(".item-lista").length;
+
+    // Atualizar o texto do contador
+    contador.textContent = `Você possui ${numero} tarefas`;
+  }
+
+  // Função para salvar tarefas
+  function salvarTarefas() {
+    // Obter todos os elementos li
+    let tarefas = ul.querySelectorAll(".item-lista");
+
+    // Criar array para armazenar as tarefas
+    let tarefasArray = [];
+
+    // Percorrer cada elemento li
+    for (let tarefa of tarefas) {
+      // Obter o texto da tarefa
+      let textoTarefa = tarefa.querySelector(".to-do-texto").textContent;
+
+      // Obter o estado da checkbox
+      let checkboxTarefa = tarefa.querySelector(".check-tarefa");
+      let estaFeita = checkboxTarefa ? checkboxTarefa.checked : false;
+
+      // Criar objeto para armazenar a tarefa
+      let tarefaObj = {
+        texto: textoTarefa,
+        feita: estaFeita,
+      };
+
+      // Adicionar o objeto ao array
+      tarefasArray.push(tarefaObj);
+    }
+
+    // Converter o array para JSON
+    let tarefasJSON = JSON.stringify(tarefasArray);
+
+    // Salvar o JSON no Local Storage
+    localStorage.setItem("tarefas", tarefasJSON);
+  }
+
+  // Renderizar tarefas
+  function renderizarTarefas() {
+    // Obter as tarefas do Local Storage
+    let tarefasJSON = localStorage.getItem("tarefas");
+  
+    // Se não houver tarefas, retornar
+    if (!tarefasJSON) return;
+  
+    // Converter o JSON para array
+    let tarefasArray = JSON.parse(tarefasJSON);
+  
+    // Limpar a lista de tarefas
+    ul.innerHTML = "";
+  
+    // Percorrer cada tarefa no array
+    tarefasArray.forEach(tarefaObj => {
+      // Criar elementos li, checkbox, label e button
+      const li = document.createElement("li");
+      const checkbox = document.createElement("input");
+      const label = document.createElement("label");
+      const button = document.createElement("button");
+      const span = document.createElement("span");
+  
+      // Configurar classes e atributos
+      li.classList.add("item-lista");
+      checkbox.type = "checkbox";
+      checkbox.classList.add("check-tarefa");
+      label.textContent = tarefaObj.texto;
+  
+      if (tarefaObj.feita) {
+        checkbox.checked = true;
+        li.classList.add("tarefa-feita");
+      }
+  
+      button.setAttribute("class", "remover-item-lista");
+      span.setAttribute("class", "material-symbols-outlined");
+      span.textContent = "delete_forever";
+  
+      // Gerar ID único
+      const id = "item" + (ul.children.length + 1);
+      checkbox.id = id;
+      label.setAttribute("for", id);
+      label.classList.add("to-do-texto");
+  
+      // Adicionar elementos ao li
+      button.appendChild(span);
+      li.appendChild(checkbox);
+      li.appendChild(label);
+      li.appendChild(button);
+  
+      // Adicionar evento de click ao botão de excluir
+      button.addEventListener("click", function() {
+        if (window.confirm("Tem certeza que deseja excluir?")) {
+          removerTarefa(li);
+        }
+      });
+  
+      // Adicionar li à lista
+      ul.appendChild(li);
+  
+      // Adicionar event listener no checkbox
+      checkbox.addEventListener("change", function() {
+        salvarTarefas();
+      });
+    });
+  
+    // Atualizar contador
+    atualizarContador();
+  }
+  
+  // Adicionar eventos de click
+  button.addEventListener("click", adicionarTarefa);
+  
+  // Renderizar tarefas
+  renderizarTarefas();
+  
